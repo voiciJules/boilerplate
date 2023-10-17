@@ -3,6 +3,7 @@ const app = express();
 const port = 5000;
 const bodyParser = require("body-parser");
 const { User } = require("./models/User");
+const { auth } = require("./middleware/auth");
 const config = require("./config/key");
 const cookieParser = require("cookie-parser");
 
@@ -28,7 +29,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/register", (req, res) => {
+app.post("/api/users/register", (req, res) => {
   // when we receive information of sign-up, it put them into DB.
   const user = new User(req.body);
   //   user.save((err, userInfo) => {
@@ -62,7 +63,7 @@ app.post("/register", (req, res) => {
 // 2. 만약 요청된 이메일이 있다면, 패스워드가 맞는지 확인한다.
 // 2-1. 비밀번호 틀렸다면 비밀번호가 틀렸다고 메세지 보내기
 // 3. 비밀번호까지 다 맞았다면, 토큰을 생성한다.
-app.post("/login", async (req, res) => {
+app.post("/api/users/login", async (req, res) => {
   // 1
   var matchedUser = await User.findOne({ email: req.body.email }).exec();
   console.log(matchedUser);
@@ -131,6 +132,46 @@ app.post("/login", async (req, res) => {
 //           .json({ loginSuccess: true, userId: user._id });
 //       });
 //     });
+//   });
+// });
+
+app.get("/api/users/auth", auth, (req, res) => {
+  // 여기까지 미들웨어를 통과해 왔다는 것은 isAuth: true 라는 말.
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image,
+  });
+});
+
+app.get("/api/users/logout", auth, async (req, res) => {
+  var doc = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { token: "" },
+    { new: true }
+  );
+
+  doc = await User.findOne({ _id: req.user._id });
+  console.log(doc);
+  if (!doc) {
+    return res.json({ success: false });
+    console.log("failure ");
+  }
+  return res.status(200).send({ success: true });
+});
+
+// 원본 코드
+// app.get("/api/users/logout", auth, (req, res) => {
+//   User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
+//     if (err) {
+//       return res.json({ success: false, err });
+//     }
+//     return res.status(200).send({ success: true });
 //   });
 // });
 

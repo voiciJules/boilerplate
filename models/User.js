@@ -80,7 +80,7 @@ userSchema.methods.generateToken = function (cb) {
   var token = jwt.sign(user._id.toJSON(), "secretToken");
   // 위에 user._id를  {user._id} or user._id.toJSON() or user._id.toHexString()으로 바꾸어보자.
   // 'secretToken'은 아무거나 넣어준거임
-  // user._id + 'secretToken' = toekn
+  // user._id + 'secretToken' = token
   // 'secretToken' -> 'user._id' 시크릿토큰 글자를 통해 유저 아이디를 알수 있는 것이다
   user.token = token;
   user
@@ -94,6 +94,40 @@ userSchema.methods.generateToken = function (cb) {
       cb(err);
     });
 };
+
+userSchema.statics.findByToken = function (token, cb) {
+  var user = this;
+  console.log("findByToken, user", user);
+  //decode token
+  jwt.verify(token, "secretToken", async function (err, decoded) {
+    // 유저 아이디를 이용해서 유저를 찾은 다음에
+    // 클라이언트에서 가져온 토큰과 데이터베이스에 보관된 토큰이 일치하는지 확인
+
+    // user.findOne({ _id: decoded, token: token }, function (err, user) {
+    //   if (err) return cb(err);
+    //   cb(null, user);
+    // });
+    var found = await user.findOne({ _id: decoded, token: token }).exec();
+    console.log("found", found);
+    cb(null, found);
+  });
+};
+
+// 아래는 원본코드
+// userSchema.statics.findByToken = function (token, cb) {
+//   var user = this;
+
+//   //decode token
+//   jwt.verify(token, "secretToken", function (err, decoded) {
+//     // 유저 아이디를 이용해서 유저를 찾은 다음에
+//     // 클라이언트에서 가져온 토큰과 데이터베이스에 보관된 토큰이 일치하는지 확인
+
+//     user.findOne({ _id: decoded, token: token }, function (err, user) {
+//       if (err) return cb(err);
+//       cb(null, user);
+//     });
+//   });
+// };
 
 // 아래는 수업에 나온 원본 코드
 

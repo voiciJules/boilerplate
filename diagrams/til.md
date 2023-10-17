@@ -118,3 +118,52 @@ at cookieParser (/Users/hojunhwang/Documents/gitfth/hojun_portfolios/boiler_plat
 var token = jwt.sign(user.\_id, "secretToken");  
 =>  
 var token = jwt.sign(user.\_id.toHexString(), "secretToken");
+
+오리지널 코드의 콜백함수를 제거하고, 기능은 기본 강의와 동일하게 기능하도록 코드를 고쳤음.
+
+# Make a authentication function
+
+rewrite routes like from '/register' to '/api/users/register'.
+
+difference between 'get' and 'post'???
+
+difference between 'var', 'let' and 'const'???  
+var는 전역범위 혹은 함수범위에서 사용된다. 재선언되고, 업데이트 될 수 있다.  
+let은 블록범위, 하나의 블록은 중괄호 {} 속에 존재하며, 해당 중괄호 안에 있는 것은 모두 블록범위이다.  
+let은 업데이트 될 수는 있지만, 범위 내에서 재선언은 불가능하다.  
+const는 블록범위이다. 업데이트도 재선언도 불가능하다. const 개체는 업데이트 할 수 없지만, 개체의 속성은 업데이트 가능하다.
+
+const greeting = {  
+ message: "say Hi",  
+ times: 4  
+}  
+에서  
+greeting = {  
+ words: "Hello",  
+ number: "five"  
+} // error: Assignment to constant variable.
+
+로 업데이트는 불가능하지만,  
+greeting.message = "say Hello instead";  
+은 가능하다.
+
+difference between UserSchema.statics and UserSchema.methods??  
+statics에서 this는 user collection 전체를 의미하지만, methods에서의 this는 document 하나만을 의미한다.
+
+# log out 기능 만들기
+
+Make logout route  
+Remove the user's token after searching the user who want to log out in the DB.
+
+로그아웃시, 왜 토큰을 지워주면 되는가?
+데이터베이스의 토큰을 지워주면, 인증이 안 되서 로그인 기능이 풀려버리기 때문임.
+
+index.js의 logout 라우터에서 \_id를 통해 토큰을 지우려고 하는 기능이 안됨.
+->
+console.log로 원인 찾기 시작
+->
+findByToken의 findOne 함수 사용시 async, await 사용하여 문제 해결
+
+User.js의 findByToken에서 findOne 함수를 통해 found 변수를 구할 때 await, async를 사용하지 않아서
+found가 Promise { <pending>} 처리 되어서, index.js의 logout 라우터에서 \_id를 통해 토큰을 지우려고 하는 기능이 안됨.
+doc이 계속 null로 나옴.
