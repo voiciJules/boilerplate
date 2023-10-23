@@ -167,3 +167,155 @@ findByToken의 findOne 함수 사용시 async, await 사용하여 문제 해결
 User.js의 findByToken에서 findOne 함수를 통해 found 변수를 구할 때 await, async를 사용하지 않아서
 found가 Promise { <pending>} 처리 되어서, index.js의 logout 라우터에서 \_id를 통해 토큰을 지우려고 하는 기능이 안됨.
 doc이 계속 null로 나옴.
+
+# ReactJS
+
+현재까지는 한 것들은 server쪽 작업이다. 그러므로 server directory를 만들어서 그 서버에 넣는다.  
+client directory 만들어서 앞으로 할 프론트엔드 부분을 그 안에서 진행시키면 된다.
+
+`npx create-react-app .`
+
+`npm start`  
+Starts the development server.
+
+`npm run build`  
+Bundles the app into static files for production.
+
+`npm test`  
+Starts the test runner.
+
+`npm run eject`  
+Removes this tool and copies build dependencies, configuration files  
+and scripts into the app directory. If you do this, you can’t go back!
+
+처음 npm start 실행하고,
+index.js 파일을 살펴보면,
+index.html 부분의 root 부분을 이용해서 app.js를 보여주는 것임을 알 수 있다.
+
+번외로 webpack의 영향범위는 src directory 이므로 이미지 등을 저장할 때는 public directory가 아닌 src directory에 저장하는 것이 맞다.
+
+# App.js Route ( React Router Dom )
+
+when we go to another page, we need React Router DOM  
+(https://reactrouter.com/en/main) <- 튜토리얼이 많이 바뀜
+
+Switch 대신에 Routes를 써야함. 튜토리얼 대신 네이버에 react-router-dom 검색하면 다양한 예제 나옴.
+Download dependency with `npm install react-router-dom --save`
+
+react-router-dom documentation 복사하고 붙여넣기 해서 조금 바꾸면서 테스트 해보면 되는 것인데,  
+현재 사이트가 많이 바뀌어서 그냥 수업 내용 보고 베껴서 코드 작성함.
+
+# -------- server 폴더로 백엔드 파일 옮겨서 npm run start 실행하니 아래와 같은 에러... ---------------
+
+Error: Cannot find module '../models/User'  
+Require stack:
+
+- /Users/hojunhwang/Documents/gitfth/hojun_portfolios/boiler_plate/server/index.js
+  at Function.Module.\_resolveFilename (node:internal/modules/cjs/loader:933:15)
+  at Function.Module.\_load (node:internal/modules/cjs/loader:778:27)
+  at Module.require (node:internal/modules/cjs/loader:999:19)
+  at require (node:internal/modules/cjs/helpers:102:18)
+  at Object.<anonymous> (/Users/hojunhwang/Documents/gitfth/hojun_portfolios/boiler_plate/server/index.js:5:18)
+  at Module.\_compile (node:internal/modules/cjs/loader:1097:14)
+  at Object.Module.\_extensions..js (node:internal/modules/cjs/loader:1151:10)
+  at Module.load (node:internal/modules/cjs/loader:975:32)
+  at Function.Module.\_load (node:internal/modules/cjs/loader:822:12)
+  at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:77:12) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+  '/Users/hojunhwang/Documents/gitfth/hojun_portfolios/boiler_plate/server/index.js'
+  ]
+
+  Module_Not_Found error.  
+  Error: Cannot find module '../models/User' 로 가서 경로를 잘 설정해주면 된다.  
+  이번에 server directory를 만들어서 파일을 옮겨주는 과정에서 path 설정이 잘 안 되어서 발생한 문제인 듯.
+
+# data request, response flow and axios
+
+서버와 클라이언트의 port를 맞춰주어야 함.  
+현재 서버는 5000번, 클라이언트는 3000번인 상태.  
+두 개의 다른 포트를 가지고 있기 때문에 클라이언트에서 아무 설정 없이 request를 보낼 수 없는데, 그 이유는 CORS(cross origin resource sharing) 때문임. 이것은 보안을 위한 것인데 이것을 해결하는 방법은 proxy 임.
+
+`npm install axios --save` 로 일단 axios 다운로드.
+
+# ---- ERROR ----
+
+"""  
+Request failed with status code 404  
+AxiosError: Request failed with status code 404  
+"""
+
+function LandingPage() {  
+ useEffect(() => {  
+ axios.get("/api/hello").then((response) => console.log(response));  
+ }, []);  
+ return <div>LandingPage</div>;  
+}
+
+LandingPage에서 request를 보냈지만, 이것은 포트 3000번으로 request를 보내는 것이기 때문에 5000번 포트를 사용하는 서버에서는 해당 request를 받지 못함. 그래서 404 error code 발생하는 것임(404 : 사용자가 사이트에서 존재하지 않는 URL을 탐색했을 때 발생할 수 있음).
+
+/api/hello => http://localhost:5000/api/hello로 변경 후 다시 한번 npm run start.  
+Access to XMLHttpRequest at 'http://localhost:5000/api/hello' from origin 'http://localhost:3003' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.  
+CORS 관련 에러 발생.
+
+해결하는 방법은 여러가지가 있을 수 있는데, proxy를 사용해서 해결.
+
+---
+
+proxy 관련 정보  
+https://create-react-app.dev/docs/proxying-api-requests-in-development/
+
+`npm install http-proxy-middleware --save` 다운로드
+
+`관련 정보 사용하여 src/setupProxy.js 작성한다.`
+
+USER <=> proxy server <=> Internet
+advantage :
+
+1. 방화벽 기능
+2. 웹 필터 기능
+3. 캐쉬데이터, 공유데이터 제공 기능
+
+# Concurrently
+
+`https://www.npmjs.com/package/concurrently`  
+concurrently 사용하여 프론트엔드와 백엔드 동시에 켜기  
+`"dev" : "concurrently \"npm run server\" \"cd ../client && npm run client\""`
+
+# CSS Ant design
+
+CSS framework 사용하는 이유. 기능 위주의 코딩을 할 수 있음.
+종류 : Material UI, React Bootstrap, Semantic UI, Ant Design, Materialize
+
+`https://ant.design/`
+사이즈 큼. 엔터프라이즈 환경에서도 사용가능. 사용하기 쉽다. 스타일 깔끔.
+
+`npm install antd --save` 다운로드 후,
+
+# Redux setting
+
+다운 받아야 할 dependencies.  
+redux, react-redux, redux-promise, redux-thunk
+
+`npm install redux react-redux redux-promise redux-thunk`
+
+# login page with Redux
+
+# ------- ERROR -------------
+
+the below code is now working after copying the code of this course.  
+// props.history.push("/");  
+// => import {useNavigate} from 'react-router-dom';  
+// const navigate = useNavigate();  
+// props.history.push('/') => navigate('/')  
+// because of the replacement of library version, it changed from useHistory to useNavigate  
+// At present, no more withRouter, useHistory
+
+# ------- ERROR -------------
+
+[1] [eslint]  
+[1] src/\_reducers/user_reducer.js  
+[1] Line 3:1: Unexpected default export of anonymous function import/no-anonymous-default-export  
+[1] Line 7:7: Unreachable code no-unreachable
+
+It's an ERROR because of ES Lint. Just make a name for this anonymous function. That's it.

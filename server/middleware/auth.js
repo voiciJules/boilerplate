@@ -13,6 +13,8 @@ let auth = (req, res, next) => {
 
     req.token = token;
     req.user = user; // index.js 에서 req.token, req.user 정보를 사용할 수 있도록 하는 것.
+    console.log("auth, req.token", req.token);
+    console.log("auth.js req.user", req.user);
     next(); // 미들웨어에 갇히지 않고 다음 단계로 넘어갈 수 있도록 해주는 함수.
   });
 
