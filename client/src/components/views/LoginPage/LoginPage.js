@@ -33,9 +33,8 @@ function LoginPage(props) {
         // props.history.push('/')  =>  navigate('/')
         // 버전이 올라가면서 useHistory > useNavigate로 바뀜(최신버전에는 withRouter, useHistory 둘 다 없음).
         navigate("/");
-        console.log("annoying");
       } else {
-        alert("Error");
+        alert("LoginPage Error");
       }
     });
   };
@@ -55,9 +54,19 @@ function LoginPage(props) {
         onSubmit={onSubmitHandler}
       >
         <label>Email</label>
-        <input type="email" value={Email} onChange={onEmailHandler} />
+        <input
+          type="email"
+          value={Email}
+          autoComplete="email"
+          onChange={onEmailHandler}
+        />
         <label>Password</label>
-        <input type="password" value={Password} onChange={onPasswordHandler} />
+        <input
+          type="password"
+          value={Password}
+          autoComplete="current-password"
+          onChange={onPasswordHandler}
+        />
         <br />
         <button type="submit">Login</button>
       </form>
