@@ -319,3 +319,57 @@ the below code is now working after copying the code of this course.
 [1] Line 7:7: Unreachable code no-unreachable
 
 It's an ERROR because of ES Lint. Just make a name for this anonymous function. That's it.
+
+# register page, log out page
+
+Register page is the same as login page
+
+1. making a fronend by using html, css(form, input, label, css)
+2. by using useState, we control each state in each input(email, password etc)
+3. making a function for each onChange in the input tag
+4. by using dispatch(useDispatch from react-redux), do the action!
+5. by using navigate(useNavigate from react-router-dom), redirect the page into the login page
+
+Log out page,
+
+1. make a button in the LandingPage
+2. make a function when you click the button
+3. by using axios.get, we remove the token from user and redirect the page into the login page.
+
+# HOC(Higher Order Component)
+
+들어갈 수 있는 페이지들에 대한 통제는 HOC(Higher Order Component)를 통해 한다  
+HOC : A function that takes a component and returns a new component  
+const EnhancedComponent = higherOrderComponent(WrappedComponent);  
+즉, /hoc/auth.js 에서 해당 유저가 해당 페이지에 들어갈 자격이 되는지 알아낸 후에, 자격이 되면 들여보내 주고 아니면 다른 페이지로 보내버리는 것
+
+# ----- ERROR -----
+
+- Warning: Functions are not valid as a React child. This may happen if you return a Component instead of <Component /> from render. Or maybe you meant to call this function rather than return it.
+- const dispatch = useDispatch(); 를 제일 윗단으로 올리니까 아래 에러가 나옴  
+  Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+   See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+
+해결방법
+hoc/auth.js 의 무기명 함수에 이름을 넣어서 기명함수로 만들어준다.
+아래와 같이 각 페이지에서 export 전에 Auth로 감싸준다.
+/src/view/RegisterPage
+export default Auth(RegisterPage, false);
+/src/view/LandingPage
+export default Auth(LandingPage, null);
+/src/view/LoginPage
+export default Auth(LoginPage, false);
+
+# ------- important ----------
+
+It’s not supported to call Hooks (functions starting with use) in any other cases, for example:
+
+🔴 Do not call Hooks inside conditions or loops.  
+🔴 Do not call Hooks after a conditional return statement.  
+🔴 Do not call Hooks in event handlers.  
+🔴 Do not call Hooks in class components.  
+🔴 Do not call Hooks inside functions passed to useMemo, useReducer, or useEffect.

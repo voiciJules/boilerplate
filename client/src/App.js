@@ -9,7 +9,7 @@ function App() {
     <Router>
       <div className="App">
         <div>
-          <ul>
+          {/* <ul>
             <li>
               <Link to="/">LandingPage</Link>
             </li>
@@ -20,11 +20,11 @@ function App() {
               <Link to="/login">Login</Link>
             </li>
           </ul>
-          <hr />
+          <hr /> */}
           <Routes>
             <Route exact path="/" element={<LandingPage />} />
-            <Route exact path="/register" element={<RegisterPage />} />
             <Route exact path="/login" element={<LoginPage />} />
+            <Route exact path="/register" element={<RegisterPage />} />
           </Routes>
         </div>
       </div>
